@@ -1,5 +1,7 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+import { getPlayerToken } from '../redux/actions';
 
 class Login extends React.Component {
   constructor() {
@@ -9,6 +11,7 @@ class Login extends React.Component {
       inputEmail: '',
       isButtonDisabled: true,
     };
+
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.validEmail = this.validEmail.bind(this);
@@ -41,6 +44,9 @@ class Login extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    const { requestToken } = this.props;
+    const { inputEmail } = this.state;
+    requestToken(inputEmail);
   }
 
   render() {
@@ -84,4 +90,12 @@ class Login extends React.Component {
   }
 }
 
-export default connect(null, null)(Login);
+Login.propTypes = {
+  requestToken: PropTypes.func.isRequired,
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  requestToken: (email) => dispatch(getPlayerToken(email)),
+});
+
+export default connect(null, mapDispatchToProps)(Login);
