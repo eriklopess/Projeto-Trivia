@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
-import { getPlayerToken } from '../redux/actions';
+import { getPlayerToken, userLogin } from '../redux/actions';
 
 class Login extends React.Component {
   constructor() {
@@ -37,17 +38,25 @@ class Login extends React.Component {
 
   handleChange({ target }) {
     const { name, value } = target;
-    this.setState({
+    this.setState({ // user: {
       [name]: value,
     }, this.verifyFormDatas);
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    const { requestToken } = this.props;
-    const { inputEmail } = this.state;
+    const { requestToken, setInfo, history } = this.props;
+    const { inputEmail, inputName } = this.state;
+    const convertEmail = md5(inputEmail).toString();
+    const userIcon = `https://www.gravatar.com/avatar/${convertEmail}`;
+    const payload = {
+      name: inputName,
+      email: inputEmail,
+      userIcon,
+    };
     requestToken(inputEmail);
-    // history.push('/game');
+    setInfo(payload);
+    history.push('/game');
   }
 
   render() {
@@ -102,12 +111,14 @@ class Login extends React.Component {
 
 Login.propTypes = {
   requestToken: PropTypes.func.isRequired,
+  setInfo: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
 };
 
 const mapDispatchToProps = (dispatch) => ({
+  setInfo: (payload) => dispatch(userLogin(payload)),
   requestToken: (email) => dispatch(getPlayerToken(email)),
 });
 
