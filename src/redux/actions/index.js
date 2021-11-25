@@ -23,7 +23,7 @@ export const getPlayerToken = () => async (dispatch) => {
   dispatch(requestApi);
   try {
     const token = await fecthApiToken();
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', JSON.stringify(token));
 
     dispatch(requestApiSuccess());
   } catch (error) {
@@ -31,9 +31,7 @@ export const getPlayerToken = () => async (dispatch) => {
   }
 };
 
-const userLogin = (payload) => ({
+export const userLogin = (payload) => ({
   type: USER_LOGIN,
   payload,
 });
-
-export default userLogin;
