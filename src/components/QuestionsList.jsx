@@ -25,6 +25,8 @@ class QuestionsList extends Component {
   }
 
   incrementIndex() {
+    console.log(idInterval, 'idInterval');
+    console.log(idTimeout, 'idTimeout');
     clearInterval(idInterval);
     clearTimeout(idTimeout);
     this.setState((prev) => ({ index: prev.index + 1, timer: 30 }),
