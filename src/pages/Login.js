@@ -54,7 +54,7 @@ class Login extends React.Component {
       email: inputEmail,
       userIcon,
     };
-    requestToken(inputEmail);
+    requestToken();
     setInfo(payload);
     history.push('/game');
   }
@@ -119,7 +119,7 @@ Login.propTypes = {
 
 const mapDispatchToProps = (dispatch) => ({
   setInfo: (payload) => dispatch(userLogin(payload)),
-  requestToken: (email) => dispatch(getPlayerToken(email)),
+  requestToken: () => dispatch(getPlayerToken()),
 });
 
 export default connect(null, mapDispatchToProps)(Login);
