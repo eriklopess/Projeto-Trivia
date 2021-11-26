@@ -15,7 +15,8 @@ class QuestionsList extends Component {
   }
 
   incrementIndex() {
-    this.setState((prev) => ({ index: prev.index + 1 }));
+    this.setState((prev) => ({ index: prev.index + 1 }),
+      this.randomButtons);
   }
 
   randomButtons() {
@@ -40,6 +41,16 @@ class QuestionsList extends Component {
       datatestid: `wrong-answer-${randomIndex}`,
       value: incorrectAnswers[randomIndex],
     });
+    const ONE = -1;
+    answers.sort((a, b) => {
+      if (a.value < b.value) {
+        return ONE;
+      }
+      if (b.value < a.value) {
+        return 1;
+      }
+      return 0;
+    });
     this.setState({ answers }); // manda para o state do component;
   }
 
@@ -53,16 +64,18 @@ class QuestionsList extends Component {
           <section>
             <h3 data-testid="question-category">{ results[index].category }</h3>
             <h4 data-testid="question-text">{ results[index].question }</h4>
-            {answers.map((answer, i) => (
-              <button
-                type="button"
-                key={ i }
-                data-testid={ answer.datatestid }
-                onClick={ this.incrementIndex }
-              >
-                {answer.value}
-              </button>
-            ))}
+            {
+              answers.map((answer, i) => (
+                <button
+                  type="button"
+                  key={ i }
+                  data-testid={ answer.datatestid }
+                  onClick={ this.incrementIndex }
+                >
+                  {answer.value}
+                </button>
+              ))
+            }
           </section>
         ) }
 
