@@ -3,6 +3,8 @@ import { USER_LOGIN } from '../actions';
 const INITIAL_STATE = {
   name: '',
   email: '',
+  score: 0,
+  userIcon: '',
 };
 
 const userReducer = (state = INITIAL_STATE, action) => {
@@ -12,6 +14,7 @@ const userReducer = (state = INITIAL_STATE, action) => {
       ...state,
       name: action.payload.name,
       email: action.payload.email,
+      userIcon: action.payload.userIcon,
     };
   default:
     return state;
