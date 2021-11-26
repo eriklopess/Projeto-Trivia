@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import './QuestionsList.css';
 
 class QuestionsList extends Component {
   constructor() {
@@ -12,6 +13,7 @@ class QuestionsList extends Component {
 
     this.incrementIndex = this.incrementIndex.bind(this);
     this.randomButtons = this.randomButtons.bind(this);
+    this.toggleColor = this.toggleColor.bind(this);
   }
 
   incrementIndex() {
@@ -54,6 +56,18 @@ class QuestionsList extends Component {
     this.setState({ answers }); // manda para o state do component;
   }
 
+  toggleColor() {
+    const { answers } = this.state;
+    const answersWithColors = answers.map((answer) => {
+      if (answer.datatestid === 'correct-answer') {
+        return { ...answer, className: 'correct' };
+      }
+      return { ...answer, className: 'wrong' };
+    });
+    console.log(answersWithColors);
+    this.setState({ answers: answersWithColors });
+  }
+
   render() {
     const { answers, index } = this.state;
     const { results } = this.props;
@@ -69,8 +83,9 @@ class QuestionsList extends Component {
                 <button
                   type="button"
                   key={ i }
+                  className={ answer.className ? answer.className : 'answer' }
                   data-testid={ answer.datatestid }
-                  onClick={ this.incrementIndex }
+                  onClick={ this.toggleColor }
                 >
                   {answer.value}
                 </button>
