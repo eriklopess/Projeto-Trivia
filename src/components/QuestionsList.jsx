@@ -3,45 +3,59 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './QuestionsList.css';
 
+let idInterval = null;
+let idTimeout = null;
 class QuestionsList extends Component {
   constructor() {
     super();
     this.state = {
       index: 0,
       answers: [],
+      timer: 30,
     };
 
     this.incrementIndex = this.incrementIndex.bind(this);
     this.randomButtons = this.randomButtons.bind(this);
     this.toggleColor = this.toggleColor.bind(this);
+    this.timerFunction = this.timerFunction.bind(this);
+  }
+
+  componentDidMount() {
+    this.timerFunction();
   }
 
   incrementIndex() {
-    this.setState((prev) => ({ index: prev.index + 1 }),
+    clearInterval(idInterval);
+    clearTimeout(idTimeout);
+    this.setState((prev) => ({ index: prev.index + 1, timer: 30 }),
       this.randomButtons);
+    this.timerFunction();
   }
 
   randomButtons() {
-    const { index } = this.state; // pega o index do state,
-    const { results } = this.props; // pega o results por props,
-    const correctAnswer = results[index].correct_answer; // pega o index da resposta correta
-    const incorrectAnswers = results[index].incorrect_answers; // pega o index de resposta incorreta
+    const { index } = this.state;
+    const { results } = this.props;
+    const correctAnswer = results[index].correct_answer;
+    const incorrectAnswers = results[index].incorrect_answers;
 
-    const randomIndex = Math.floor(Math.random() * incorrectAnswers.length); // pega um numero aleatorio baseado no length da resposta incorreta
-    const answers = incorrectAnswers.map((answer, i) => { // faz o map e compara o index com numero random gerado
+    const randomIndex = Math.floor(Math.random() * incorrectAnswers.length);
+    const answers = incorrectAnswers.map((answer, i) => {
       if (i === randomIndex) {
         return ({
           datatestid: 'correct-answer',
           value: correctAnswer,
+          isDisabled: false,
         });
       }
       return ({
         datatestid: `wrong-answer-${i}`,
         value: answer,
+        isDisabled: false,
       });
-    }).concat({ // concatena todas as respostas
+    }).concat({
       datatestid: `wrong-answer-${randomIndex}`,
       value: incorrectAnswers[randomIndex],
+      isDisabled: false,
     });
     const ONE = -1;
     answers.sort((a, b) => {
@@ -53,23 +67,38 @@ class QuestionsList extends Component {
       }
       return 0;
     });
-    this.setState({ answers }); // manda para o state do component;
+    this.setState({ answers });
   }
 
   toggleColor() {
+    clearInterval(idInterval);
+    clearTimeout(idTimeout);
     const { answers } = this.state;
     const answersWithColors = answers.map((answer) => {
       if (answer.datatestid === 'correct-answer') {
-        return { ...answer, className: 'correct' };
+        return { ...answer, className: 'correct', isDisabled: true };
       }
-      return { ...answer, className: 'wrong' };
+      return { ...answer, className: 'wrong', isDisabled: true };
     });
-    console.log(answersWithColors);
     this.setState({ answers: answersWithColors });
   }
 
+  timerFunction() {
+    const ONE_SECOND = 1000;
+    const THINTY_SECOND = 30000;
+    idInterval = setInterval(() => {
+      this.setState((prev) => ({
+        timer: prev.timer - 1,
+      }));
+    }, ONE_SECOND);
+    idTimeout = setTimeout(() => {
+      clearInterval(idInterval);
+      this.toggleColor();
+    }, THINTY_SECOND);
+  }
+
   render() {
-    const { answers, index } = this.state;
+    const { answers, index, timer } = this.state;
     const { results } = this.props;
     if (results.length !== 0 && answers.length === 0) this.randomButtons();
     return (
@@ -78,6 +107,7 @@ class QuestionsList extends Component {
           <section>
             <h3 data-testid="question-category">{ results[index].category }</h3>
             <h4 data-testid="question-text">{ results[index].question }</h4>
+            <h5>{ timer <= 0 ? '0' : timer }</h5>
             {
               answers.map((answer, i) => (
                 <button
@@ -86,11 +116,13 @@ class QuestionsList extends Component {
                   className={ answer.className ? answer.className : 'answer' }
                   data-testid={ answer.datatestid }
                   onClick={ this.toggleColor }
+                  disabled={ answer.isDisabled }
                 >
                   {answer.value}
                 </button>
               ))
             }
+            <button type="button" onClick={ this.incrementIndex }>Proxima Questão</button>
           </section>
         ) }
 
