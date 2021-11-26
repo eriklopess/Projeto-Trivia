@@ -7,54 +7,65 @@ class QuestionsList extends Component {
     super();
     this.state = {
       index: 0,
+      answers: [],
     };
 
     this.incrementIndex = this.incrementIndex.bind(this);
+    this.randomButtons = this.randomButtons.bind(this);
   }
 
   incrementIndex() {
-    const { index } = this.state;
-    const { results } = this.props;
-    this.setState((prev) => ({
-      index: prev.index + 1,
-    }), () => {
-      if (index > results.length) {
-        this.setState({ index: 0 });
+    this.setState((prev) => ({ index: prev.index + 1 }));
+  }
+
+  randomButtons() {
+    const { index } = this.state; // pega o index do state,
+    const { results } = this.props; // pega o results por props,
+    const correctAnswer = results[index].correct_answer; // pega o index da resposta correta
+    const incorrectAnswers = results[index].incorrect_answers; // pega o index de resposta incorreta
+
+    const randomIndex = Math.floor(Math.random() * incorrectAnswers.length); // pega um numero aleatorio baseado no length da resposta incorreta
+    const answers = incorrectAnswers.map((answer, i) => { // faz o map e compara o index com numero random gerado
+      if (i === randomIndex) {
+        return ({
+          datatestid: 'correct-answer',
+          value: correctAnswer,
+        });
       }
+      return ({
+        datatestid: `wrong-answer-${i}`,
+        value: answer,
+      });
+    }).concat({ // concatena todas as respostas
+      datatestid: `wrong-answer-${randomIndex}`,
+      value: incorrectAnswers[randomIndex],
     });
+    this.setState({ answers }); // manda para o state do component;
   }
 
   render() {
-    const { index } = this.state;
-    const { results, isLoading } = this.props;
-    console.log(results);
+    const { answers, index } = this.state;
+    const { results } = this.props;
+    if (results.length !== 0 && answers.length === 0) this.randomButtons();
     return (
       <div>
-        { isLoading && 'loading' }
         { results.length > 0 && (
           <section>
             <h3 data-testid="question-category">{ results[index].category }</h3>
             <h4 data-testid="question-text">{ results[index].question }</h4>
-            <button
-              type="button"
-              datatestid="correct-answer"
-              onClick={ this.incrementIndex }
-            >
-              { results[index].correct_answer }
-            </button>
-            {results[index].incorrect_answers.map((questions, i) => (
+            {answers.map((answer, i) => (
               <button
                 type="button"
                 key={ i }
-                datatestid={ `wrong-answer-${i}` }
-                value={ questions }
+                data-testid={ answer.datatestid }
                 onClick={ this.incrementIndex }
               >
-                { questions }
+                {answer.value}
               </button>
             ))}
           </section>
-        )}
+        ) }
+
       </div>
     );
   }
@@ -62,7 +73,6 @@ class QuestionsList extends Component {
 
 QuestionsList.propTypes = {
   results: PropTypes.arrayOf(PropTypes.object).isRequired,
-  isLoading: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
