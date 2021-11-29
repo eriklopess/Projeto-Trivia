@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { saveScore } from '../redux/actions';
 import './QuestionsList.css';
 
 let idInterval = null;
 let idTimeout = null;
+let score = 0;
+
 class QuestionsList extends Component {
   constructor() {
     super();
@@ -12,21 +15,67 @@ class QuestionsList extends Component {
       index: 0,
       answers: [],
       timer: 30,
+      userAction: true,
+      rightAnswer: false,
     };
 
     this.incrementIndex = this.incrementIndex.bind(this);
     this.randomButtons = this.randomButtons.bind(this);
     this.toggleColor = this.toggleColor.bind(this);
     this.timerFunction = this.timerFunction.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.getScore = this.getScore.bind(this);
   }
 
   componentDidMount() {
+    const { player } = this.props;
+    localStorage.setItem('state', JSON.stringify({
+      player,
+    }));
     this.timerFunction();
   }
 
+  getScore() {
+    const { index, userAction, timer, rightAnswer } = this.state;
+    const { savePlayerScore, player, results } = this.props;
+    const { difficulty } = results[index];
+    const baseScore = 10;
+    let difficultyLevel = '';
+
+    switch (difficulty) {
+    case 'hard':
+      difficultyLevel = '3';
+      break;
+    case 'medium':
+      difficultyLevel = '2';
+      break;
+    case 'easy':
+      difficultyLevel = '1';
+      break;
+    default:
+      return '';
+    }
+    if (userAction && rightAnswer) {
+      score += baseScore + (timer * difficultyLevel);
+      savePlayerScore(score);
+      localStorage.setItem('state', JSON.stringify({
+        player: { ...player, score },
+      }));
+    }
+  }
+
+  handleClick({ target }) {
+    const answer = target.getAttribute('data-testid');
+    const correctAnswer = answer.includes('correct');
+
+    if (correctAnswer) {
+      this.setState({ userAction: true, rightAnswer: true }, this.toggleColor);
+    } else {
+      this.setState({ userAction: true, rightAnswer: false }, this.toggleColor);
+    }
+  }
+
   incrementIndex() {
-    console.log(idInterval, 'idInterval');
-    console.log(idTimeout, 'idTimeout');
     clearInterval(idInterval);
     clearTimeout(idTimeout);
     this.setState((prev) => ({ index: prev.index + 1, timer: 30 }),
@@ -78,6 +127,7 @@ class QuestionsList extends Component {
     const { answers } = this.state;
     const answersWithColors = answers.map((answer) => {
       if (answer.datatestid === 'correct-answer') {
+        this.getScore();
         return { ...answer, className: 'correct', isDisabled: true };
       }
       return { ...answer, className: 'wrong', isDisabled: true };
@@ -94,8 +144,9 @@ class QuestionsList extends Component {
       }));
     }, ONE_SECOND);
     idTimeout = setTimeout(() => {
-      clearInterval(idInterval);
+      this.setState({ userAction: false });
       this.toggleColor();
+      clearInterval(idInterval);
     }, THINTY_SECOND);
   }
 
@@ -117,7 +168,7 @@ class QuestionsList extends Component {
                   key={ i }
                   className={ answer.className ? answer.className : 'answer' }
                   data-testid={ answer.datatestid }
-                  onClick={ this.toggleColor }
+                  onClick={ (event) => this.handleClick(event) }
                   disabled={ answer.isDisabled }
                 >
                   {answer.value}
@@ -135,11 +186,18 @@ class QuestionsList extends Component {
 
 QuestionsList.propTypes = {
   results: PropTypes.arrayOf(PropTypes.object).isRequired,
+  savePlayerScore: PropTypes.func.isRequired,
+  player: PropTypes.objectOf().isRequired,
 };
 
 const mapStateToProps = (state) => ({
   results: state.trivia.results,
   isLoading: state.trivia.isLoading,
+  player: state.user,
 });
 
-export default connect(mapStateToProps)(QuestionsList);
+const mapDispatchToProps = (dispatch) => ({
+  savePlayerScore: (payload) => dispatch(saveScore(payload)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuestionsList);
