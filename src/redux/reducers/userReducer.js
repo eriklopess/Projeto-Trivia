@@ -1,4 +1,4 @@
-import { USER_LOGIN } from '../actions';
+import { USER_LOGIN, SAVE_SCORE } from '../actions';
 
 const INITIAL_STATE = {
   name: '',
@@ -15,6 +15,11 @@ const userReducer = (state = INITIAL_STATE, action) => {
       name: action.payload.name,
       email: action.payload.email,
       userIcon: action.payload.userIcon,
+    };
+  case SAVE_SCORE:
+    return {
+      ...state,
+      score: action.payload,
     };
   default:
     return state;
