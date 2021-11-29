@@ -3,6 +3,7 @@ import { USER_LOGIN, SAVE_SCORE } from '../actions';
 const INITIAL_STATE = {
   name: '',
   email: '',
+  assertions: 0,
   score: 0,
   userIcon: '',
 };
@@ -19,7 +20,8 @@ const userReducer = (state = INITIAL_STATE, action) => {
   case SAVE_SCORE:
     return {
       ...state,
-      score: action.payload,
+      score: action.payload.score,
+      assertions: action.payload.assertions,
     };
   default:
     return state;
