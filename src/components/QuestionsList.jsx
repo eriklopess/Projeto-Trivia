@@ -186,7 +186,6 @@ class QuestionsList extends Component {
               onClick={ this.incrementIndex }
               className={ isNextEnabled ? 'next-question' : 'hidden' }
               data-testid="btn-next"
-              onClick={ this.incrementIndex }
             >
               Proxima Questão
             </button>
