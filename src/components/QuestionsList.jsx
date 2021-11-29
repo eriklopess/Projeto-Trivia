@@ -7,6 +7,7 @@ import './QuestionsList.css';
 let idInterval = null;
 let idTimeout = null;
 let score = 0;
+let assertions = 0;
 
 class QuestionsList extends Component {
   constructor() {
@@ -26,7 +27,6 @@ class QuestionsList extends Component {
     this.timerFunction = this.timerFunction.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.getScore = this.getScore.bind(this);
-    // this.toggleNextQuestion = this.toggleNextQuestion.bind(this);
   }
 
   componentDidMount() {
@@ -59,9 +59,11 @@ class QuestionsList extends Component {
     }
     if (userAction && rightAnswer) {
       score += baseScore + (timer * difficultyLevel);
-      savePlayerScore(score);
+      assertions += 1;
+
+      savePlayerScore({ score, assertions });
       localStorage.setItem('state', JSON.stringify({
-        player: { ...player, score },
+        player: { ...player, score, assertions },
       }));
     }
   }
