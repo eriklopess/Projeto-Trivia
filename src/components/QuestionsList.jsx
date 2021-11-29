@@ -37,6 +37,11 @@ class QuestionsList extends Component {
     this.timerFunction();
   }
 
+  componentWillUnmount() {
+    score = 0;
+    assertions = 0;
+  }
+
   getScore() {
     const { index, userAction, timer, rightAnswer } = this.state;
     const { savePlayerScore, player, results } = this.props;
@@ -60,7 +65,6 @@ class QuestionsList extends Component {
     if (userAction && rightAnswer) {
       score += baseScore + (timer * difficultyLevel);
       assertions += 1;
-
       savePlayerScore({ score, assertions });
       localStorage.setItem('state', JSON.stringify({
         player: { ...player, score, assertions },
@@ -162,6 +166,7 @@ class QuestionsList extends Component {
     const { answers, index, timer, isNextEnabled } = this.state;
     const { results } = this.props;
     if (results.length !== 0 && answers.length === 0) this.randomButtons();
+
     return (
       <div>
         { results.length > 0 && (
@@ -202,8 +207,8 @@ class QuestionsList extends Component {
 QuestionsList.propTypes = {
   results: PropTypes.arrayOf(PropTypes.object).isRequired,
   savePlayerScore: PropTypes.func.isRequired,
-  player: PropTypes.objectOf().isRequired,
-  history: PropTypes.objectOf({
+  player: PropTypes.shape().isRequired,
+  history: PropTypes.shape({
     push: PropTypes.func,
   }).isRequired,
 };
