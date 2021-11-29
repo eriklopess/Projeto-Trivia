@@ -80,9 +80,13 @@ class QuestionsList extends Component {
   incrementIndex() {
     clearInterval(idInterval);
     clearTimeout(idTimeout);
+    const { index } = this.state;
+    const { results, history } = this.props;
+
     this.setState((prev) => ({ index: prev.index + 1, timer: 30, isNextEnabled: false }),
       this.randomButtons);
     this.timerFunction();
+    if (results.length - 1 === index) return history.push('/feedback');
   }
 
   randomButtons() {
@@ -179,6 +183,7 @@ class QuestionsList extends Component {
             }
             <button
               type="button"
+              onClick={ this.incrementIndex }
               className={ isNextEnabled ? 'next-question' : 'hidden' }
               data-testid="btn-next"
               onClick={ this.incrementIndex }
@@ -197,6 +202,9 @@ QuestionsList.propTypes = {
   results: PropTypes.arrayOf(PropTypes.object).isRequired,
   savePlayerScore: PropTypes.func.isRequired,
   player: PropTypes.objectOf().isRequired,
+  history: PropTypes.objectOf({
+    push: PropTypes.func,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
