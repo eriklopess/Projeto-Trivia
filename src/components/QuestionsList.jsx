@@ -17,6 +17,7 @@ class QuestionsList extends Component {
       timer: 30,
       userAction: true,
       rightAnswer: false,
+      isNextEnabled: false,
     };
 
     this.incrementIndex = this.incrementIndex.bind(this);
@@ -25,6 +26,7 @@ class QuestionsList extends Component {
     this.timerFunction = this.timerFunction.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.getScore = this.getScore.bind(this);
+    // this.toggleNextQuestion = this.toggleNextQuestion.bind(this);
   }
 
   componentDidMount() {
@@ -80,7 +82,8 @@ class QuestionsList extends Component {
     clearTimeout(idTimeout);
     const { index } = this.state;
     const { results, history } = this.props;
-    this.setState((prev) => ({ index: prev.index + 1, timer: 30 }),
+
+    this.setState((prev) => ({ index: prev.index + 1, timer: 30, isNextEnabled: false }),
       this.randomButtons);
     this.timerFunction();
     if (results.length - 1 === index) return history.push('/feedback');
@@ -135,7 +138,7 @@ class QuestionsList extends Component {
       }
       return { ...answer, className: 'wrong', isDisabled: true };
     });
-    this.setState({ answers: answersWithColors });
+    this.setState({ answers: answersWithColors, isNextEnabled: true });
   }
 
   timerFunction() {
@@ -154,7 +157,7 @@ class QuestionsList extends Component {
   }
 
   render() {
-    const { answers, index, timer } = this.state;
+    const { answers, index, timer, isNextEnabled } = this.state;
     const { results } = this.props;
     if (results.length !== 0 && answers.length === 0) this.randomButtons();
     return (
@@ -181,7 +184,9 @@ class QuestionsList extends Component {
             <button
               type="button"
               onClick={ this.incrementIndex }
+              className={ isNextEnabled ? 'next-question' : 'hidden' }
               data-testid="btn-next"
+              onClick={ this.incrementIndex }
             >
               Proxima Questão
             </button>
