@@ -37,10 +37,9 @@ class QuestionsList extends Component {
 
   getScore() {
     const { index, userAction, timer, rightAnswer } = this.state;
-    const { savePlayerScore, player } = this.props;
-    const { results } = this.props;
+    const { savePlayerScore, player, results } = this.props;
     const { difficulty } = results[index];
-    const ten = 10;
+    const baseScore = 10;
     let difficultyLevel = '';
 
     switch (difficulty) {
@@ -57,7 +56,7 @@ class QuestionsList extends Component {
       return '';
     }
     if (userAction && rightAnswer) {
-      score += ten + (timer * difficultyLevel);
+      score += baseScore + (timer * difficultyLevel);
       savePlayerScore(score);
       localStorage.setItem('state', JSON.stringify({
         player: { ...player, score },
