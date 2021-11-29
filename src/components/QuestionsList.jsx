@@ -179,7 +179,7 @@ class QuestionsList extends Component {
             }
             <button
               type="button"
-              className={ isNextEnabled ? 'next-qustion' : 'hidden' }
+              className={ isNextEnabled ? 'next-question' : 'hidden' }
               data-testid="btn-next"
               onClick={ this.incrementIndex }
             >
