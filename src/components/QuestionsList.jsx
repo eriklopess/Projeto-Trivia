@@ -2,6 +2,15 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { saveScore } from '../redux/actions';
+import {
+  QuestionCategory,
+  QuestionTitle,
+  QuestionTime,
+  QuestionContainer,
+  NextQuestion,
+  AnswerButton,
+  AnswersContainer,
+} from './styles/QuestionsListStyle';
 import './QuestionsList.css';
 
 let idInterval = null;
@@ -168,15 +177,22 @@ class QuestionsList extends Component {
     if (results.length !== 0 && answers.length === 0) this.randomButtons();
 
     return (
-      <div>
-        { results.length > 0 && (
-          <section>
-            <h3 data-testid="question-category">{ results[index].category }</h3>
-            <h4 data-testid="question-text">{ results[index].question }</h4>
-            <h5>{ timer <= 0 ? '0' : timer }</h5>
+      results.length > 0 && (
+        <QuestionContainer>
+          <QuestionCategory
+            data-testid="question-category"
+          >
+            { results[index].category }
+          </QuestionCategory>
+          <QuestionTitle
+            data-testid="question-text"
+          >
+            { results[index].question }
+          </QuestionTitle>
+          <AnswersContainer>
             {
               answers.map((answer, i) => (
-                <button
+                <AnswerButton
                   type="button"
                   key={ i }
                   className={ answer.className ? answer.className : 'answer' }
@@ -185,21 +201,22 @@ class QuestionsList extends Component {
                   disabled={ answer.isDisabled }
                 >
                   {answer.value}
-                </button>
+                </AnswerButton>
               ))
             }
-            <button
-              type="button"
-              onClick={ this.incrementIndex }
-              className={ isNextEnabled ? 'next-question' : 'hidden' }
-              data-testid="btn-next"
-            >
-              Proxima Questão
-            </button>
-          </section>
-        ) }
 
-      </div>
+          </AnswersContainer>
+          <NextQuestion
+            type="button"
+            onClick={ this.incrementIndex }
+            className={ isNextEnabled ? 'next-question' : 'hidden' }
+            data-testid="btn-next"
+          >
+            Proxima Questão
+          </NextQuestion>
+          <QuestionTime>{ timer <= 0 ? '0' : timer }</QuestionTime>
+        </QuestionContainer>
+      )
     );
   }
 }

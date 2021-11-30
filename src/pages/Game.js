@@ -2,16 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
 import QuestionsList from '../components/QuestionsList';
+import MainContainer from './styles/GameStyles';
 
 class Game extends React.Component {
   render() {
     const { history } = this.props;
     return (
-      <main>
-        <Header />
-        <h1>Game</h1>
+      <MainContainer>
+        <Header hasTimer />
         <QuestionsList history={ history } />
-      </main>
+      </MainContainer>
     );
   }
 }

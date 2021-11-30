@@ -1,9 +1,9 @@
 .correct {
-  border: 3px solid rgb(6, 240, 15);
+  border: 3px solid rgb(6, 240, 15) !important;
 }
 
 .wrong {
-  border: 3px solid red;
+  border: 3px solid red !important;
 }
 
 .hidden {
