@@ -34,6 +34,7 @@ Header.propTypes = {
   userName: PropTypes.string.isRequired,
   userIcon: PropTypes.string.isRequired,
   userScore: PropTypes.number.isRequired,
+  hasTimer: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
