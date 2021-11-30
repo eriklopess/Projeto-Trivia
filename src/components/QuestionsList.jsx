@@ -7,6 +7,7 @@ import './QuestionsList.css';
 let idInterval = null;
 let idTimeout = null;
 let score = 0;
+let assertions = 0;
 
 class QuestionsList extends Component {
   constructor() {
@@ -17,6 +18,7 @@ class QuestionsList extends Component {
       timer: 30,
       userAction: true,
       rightAnswer: false,
+      isNextEnabled: false,
     };
 
     this.incrementIndex = this.incrementIndex.bind(this);
@@ -33,6 +35,11 @@ class QuestionsList extends Component {
       player,
     }));
     this.timerFunction();
+  }
+
+  componentWillUnmount() {
+    score = 0;
+    assertions = 0;
   }
 
   getScore() {
@@ -57,9 +64,10 @@ class QuestionsList extends Component {
     }
     if (userAction && rightAnswer) {
       score += baseScore + (timer * difficultyLevel);
-      savePlayerScore(score);
+      assertions += 1;
+      savePlayerScore({ score, assertions });
       localStorage.setItem('state', JSON.stringify({
-        player: { ...player, score },
+        player: { ...player, score, assertions },
       }));
     }
   }
@@ -78,9 +86,13 @@ class QuestionsList extends Component {
   incrementIndex() {
     clearInterval(idInterval);
     clearTimeout(idTimeout);
-    this.setState((prev) => ({ index: prev.index + 1, timer: 30 }),
+    const { index } = this.state;
+    const { results, history } = this.props;
+
+    this.setState((prev) => ({ index: prev.index + 1, timer: 30, isNextEnabled: false }),
       this.randomButtons);
     this.timerFunction();
+    if (results.length - 1 === index) return history.push('/feedback');
   }
 
   randomButtons() {
@@ -132,7 +144,7 @@ class QuestionsList extends Component {
       }
       return { ...answer, className: 'wrong', isDisabled: true };
     });
-    this.setState({ answers: answersWithColors });
+    this.setState({ answers: answersWithColors, isNextEnabled: true });
   }
 
   timerFunction() {
@@ -151,9 +163,10 @@ class QuestionsList extends Component {
   }
 
   render() {
-    const { answers, index, timer } = this.state;
+    const { answers, index, timer, isNextEnabled } = this.state;
     const { results } = this.props;
     if (results.length !== 0 && answers.length === 0) this.randomButtons();
+
     return (
       <div>
         { results.length > 0 && (
@@ -175,7 +188,14 @@ class QuestionsList extends Component {
                 </button>
               ))
             }
-            <button type="button" onClick={ this.incrementIndex }>Proxima Questão</button>
+            <button
+              type="button"
+              onClick={ this.incrementIndex }
+              className={ isNextEnabled ? 'next-question' : 'hidden' }
+              data-testid="btn-next"
+            >
+              Proxima Questão
+            </button>
           </section>
         ) }
 
@@ -187,7 +207,10 @@ class QuestionsList extends Component {
 QuestionsList.propTypes = {
   results: PropTypes.arrayOf(PropTypes.object).isRequired,
   savePlayerScore: PropTypes.func.isRequired,
-  player: PropTypes.objectOf().isRequired,
+  player: PropTypes.shape().isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
