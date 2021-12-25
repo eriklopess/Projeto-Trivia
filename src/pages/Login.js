@@ -3,6 +3,17 @@ import React from 'react';
 import md5 from 'crypto-js/md5';
 import { connect } from 'react-redux';
 import { getPlayerToken, userLogin } from '../redux/actions';
+import {
+  MainContainer,
+  Titulo,
+  SettingsButton,
+  FormElements,
+  SettingsImg,
+  Input,
+  PlayButton,
+  FormContainer,
+  FormElementsContainer } from './styles/LoginStyles';
+import ImageSettings from './img/Settings.png';
 
 class Login extends React.Component {
   constructor() {
@@ -17,6 +28,7 @@ class Login extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.validEmail = this.validEmail.bind(this);
     this.verifyFormDatas = this.verifyFormDatas.bind(this);
+    this.FormElementsRender = this.FormElementsRender.bind(this);
   }
 
   // consegui criar a função validEmail com a ajuda do site: https://www.horadecodar.com.br/2020/09/13/como-validar-email-com-javascript/
@@ -59,53 +71,58 @@ class Login extends React.Component {
     history.push('/game');
   }
 
-  render() {
+  FormElementsRender() {
     const { inputName, inputEmail, isButtonDisabled } = this.state;
+    return (
+      <FormElements>
+        <Titulo>Login</Titulo>
+        <Input
+          id="input-name"
+          type="text"
+          name="inputName"
+          value={ inputName }
+          data-testid="input-player-name"
+          onChange={ this.handleChange }
+          placeholder="Username"
+        />
+        <Input
+          id="input-email"
+          type="email"
+          name="inputEmail"
+          value={ inputEmail }
+          data-testid="input-gravatar-email"
+          placeholder="Email"
+          onChange={ this.handleChange }
+        />
+        <PlayButton
+          type="submit"
+          data-testid="btn-play"
+          disabled={ isButtonDisabled }
+          onClick={ this.handleSubmit }
+        >
+          Jogar
+        </PlayButton>
+      </FormElements>);
+  }
+
+  render() {
     const { history } = this.props;
     return (
-      <main className="main-container">
-        <form method="POST">
-          <label htmlFor="input-name">
-            Name:
-            <input
-              id="input-name"
-              type="text"
-              name="inputName"
-              value={ inputName }
-              data-testid="input-player-name"
-              onChange={ this.handleChange }
+      <MainContainer>
+        <FormContainer>
+          <SettingsButton type="button" onClick={ () => history.push('/settings') }>
+            <SettingsImg
+              src={ ImageSettings }
+              alt="Setting Button"
+              data-testid="btn-settings"
+              width="50px"
             />
-          </label>
-          <label htmlFor="input-email">
-            Email:
-            <input
-              id="input-email"
-              type="email"
-              name="inputEmail"
-              value={ inputEmail }
-              data-testid="input-gravatar-email"
-              onChange={ this.handleChange }
-            />
-          </label>
-          <button
-            type="submit"
-            data-testid="btn-play"
-            disabled={ isButtonDisabled }
-            onClick={ this.handleSubmit }
-          >
-            Jogar
-          </button>
-        </form>
-
-        <button
-          type="button"
-          data-testid="btn-settings"
-          onClick={ () => history.push('/settings') }
-        >
-          Configurações
-        </button>
-      </main>
-    );
+          </SettingsButton>
+          <FormElementsContainer>
+            { this.FormElementsRender() }
+          </FormElementsContainer>
+        </FormContainer>
+      </MainContainer>);
   }
 }
 
